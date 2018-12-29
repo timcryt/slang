@@ -299,26 +299,26 @@ void compile(string s, vector<pair<int, vector<int>>> & comp) {
 //Проверить условия условных операторов
 bool setFlag(int paramOne, int paramTwo, int compare) {
     switch (compare) {
-        case 0:
-            return paramOne < paramTwo;
-            break;
-        case 1:
-            return paramOne <= paramTwo;
-            break;
-        case 2:
-            return paramOne == paramTwo;
-            break;
-        case 3:
-            return paramOne >= paramTwo;
-            break;
-        case 4:
-            return paramOne > paramTwo;
-            break;
-        case 5:
-            return paramOne != paramTwo;
-            break;
-        }
-        return false;
+    case 0:
+        return paramOne < paramTwo;
+        break;
+    case 1:
+        return paramOne <= paramTwo;
+        break;
+    case 2:
+        return paramOne == paramTwo;
+        break;
+    case 3:
+        return paramOne >= paramTwo;
+        break;
+    case 4:
+        return paramOne > paramTwo;
+        break;
+    case 5:
+        return paramOne != paramTwo;
+        break;
+    }
+    return false;
 }
 
 // Выполнить арфиметическую операцию
