@@ -20,7 +20,9 @@ lib.o: lib.cpp main.hpp slang.hpp
 
 install: slang slang.a
 	cp slang /usr/bin/
-	cp slang.a /usr/lib/
+	cp libslang.a /usr/lib/
+	cp libslang.so /usr/lib/
+	cp slang.hpp /usr/include/
 
 clean:
 	rm -f slang *.o libslang.a libslang.so
