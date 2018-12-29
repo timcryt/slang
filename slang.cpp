@@ -484,13 +484,13 @@ int main(int argc, char ** argv) {
     if (argc != 2) {
         cerr << "Error: argument error" << endl;
         cerr << "Using: slang <file>" << endl;
-        exit(1);
+        return 1;
     }
     ifstream file;
     file.open(argv[1]);
     if (!file.is_open()) {
         cerr << "Error: can't open file" << endl;
-        exit(1);
+        return 1;
     }
     vector<pair<int, vector<int>>> compiled;
     while (!file.eof()) {
