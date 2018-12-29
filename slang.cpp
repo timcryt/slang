@@ -5,26 +5,15 @@
  */
 
 
-//Заголовочные файлы для работы с потоками ввода-вывода
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "main.hpp"
 
-//Заголовочные файлы для подключения возможностей STL
-#include <string>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <set>
-
-using namespace std;
 
 // Функция delspaces приводит строку в приличный вид - заменяет все табы пробелами, удаляет все двойные пробелы, удаляет все пробелы из начала строки и добавляет один пробел в конец, если его там не было
-void delSpaces(string & s) {
-    while (s.find("\t") != string().npos) {
+void delSpaces(std::string & s) {
+    while (s.find("\t") != std::string().npos) {
         s.replace(s.begin() + s.find("\t"), s.begin() + s.find("\t") + 1, " ");
     }
-    while (s.find("  ") != string().npos) {
+    while (s.find("  ") != std::string().npos) {
         s.erase(s.begin() + s.find("  "), s.begin() + s.find("  ") + 1);
     }
     if (!s.empty()) {
@@ -38,35 +27,35 @@ void delSpaces(string & s) {
 }
 
 // Получить первое слово из приведённой в порядок строки
-string getWord(const string & s) {
+std::string getWord(const std::string & s) {
       return s.substr(0, s.find(" "));
 }
 
 // Удалить первое слово из приведённой в порядок строки
-void delWord(string & s) {
+void delWord(std::string & s) {
     s.erase(s.begin(), s.begin() + s.find(" ") + 1);
 }
 
 // Выдать ощибку и аварийно завершиться
-void error(int line, int code, string msg = "") {
-    string errArr[] = {"", "unknown command", "variable can't be a number", "unknown variable", "too few arguments", "to more arguments", "expected variable, found", "expected comparsion operator, found", "unbracket end", "else without if"};
-    ostringstream err;
-    err << "Line " << line << ": error: " << errArr[code] << " " << msg << endl;
+void error(int line, int code, std::string msg) {
+    std::string errArr[] = {"", "unknown command", "variable can't be a number", "unknown variable", "too few arguments", "to more arguments", "expected variable, found", "expected comparsion operator, found", "unbracket end", "else without if"};
+    std::ostringstream err;
+    err << "Line " << line << ": error: " << errArr[code] << " " << msg << std::endl;
     throw err.str();
 }
 
 
 // Проверка строки на число
-bool isNumber(string s) {
-    return string("0123456789-").find(s.at(0)) != string().npos && s.substr(1).find_first_not_of("0123456789") == string().npos;
+bool isNumber(std::string s) {
+    return std::string("0123456789-").find(s.at(0)) != std::string().npos && s.substr(1).find_first_not_of("0123456789") == std::string().npos;
 }
 
 // ПОлучить код переменной из строки
-int getVar(string & s, map<string, int> v, int line) {
+int getVar(std::string & s, std::map<std::string, int> v, int line) {
     if (s.empty()) {
         error(line, 4);
     }
-    string w = getWord(s);
+    std::string w = getWord(s);
     delWord(s);
     if (v.find(w) == v.end()) {
         error(line, 3, w);
@@ -75,11 +64,11 @@ int getVar(string & s, map<string, int> v, int line) {
 }
 
 // Получить код переменную или число из строки
-int getCom(string & s, map<string, int> v, int line, bool & f) {
+int getCom(std::string & s, std::map<std::string, int> v, int line, bool & f) {
     if (s.empty()) {
         error(line, 4);
     }
-    string w = getWord(s);
+    std::string w = getWord(s);
     delWord(s);
     if (!isNumber(w) && v.find(w) == v.end()) {
         error(line, 6, w);
@@ -93,19 +82,19 @@ int getCom(string & s, map<string, int> v, int line, bool & f) {
 }
 
 // Получить код операции из строки
-int getOp(string & s, map<string, int> v, int line) {
-    const map<string, int> mp = {
-        pair<string, int>("<", 0),
-        pair<string, int>("<=", 1),
-        pair<string, int>("=", 2),
-        pair<string, int>(">=", 3),
-        pair<string, int>(">", 4),
-        pair<string, int>("<>", 5)
+int getOp(std::string & s, std::map<std::string, int> v, int line) {
+    const std::map<std::string, int> mp = {
+        std::pair<std::string, int>("<", 0),
+        std::pair<std::string, int>("<=", 1),
+        std::pair<std::string, int>("=", 2),
+        std::pair<std::string, int>(">=", 3),
+        std::pair<std::string, int>(">", 4),
+        std::pair<std::string, int>("<>", 5)
     };
     if (s.empty()) {
         error(line, 4);
     }
-    string w = getWord(s);
+    std::string w = getWord(s);
     delWord(s);
     if (mp.find(w) == mp.end()) {
         error(line, 7, w);
@@ -114,8 +103,8 @@ int getOp(string & s, map<string, int> v, int line) {
 }
 
 // Получить переменную для инициализации
-void getInit(string & s, map<string, int> & vars, int line) {
-    string var = getWord(s);
+void getInit(std::string & s, std::map<std::string, int> & vars, int line) {
+    std::string var = getWord(s);
     delWord(s);
     if (isNumber(var)) {
         error(line, 2);
@@ -124,7 +113,7 @@ void getInit(string & s, map<string, int> & vars, int line) {
 }
 
 // Найти парный блочный оператор
-int findBracket(const vector<int> & brackets, const int & ifDepth, const int & whileDepth, int index, bool & flag) {
+int findBracket(const std::vector<int> & brackets, const int & ifDepth, const int & whileDepth, int index, bool & flag) {
     int it = ifDepth + 1, wt = whileDepth + 1;
     while (it != ifDepth && wt != whileDepth && index > 0) {
         index--;
@@ -156,7 +145,7 @@ int findBracket(const vector<int> & brackets, const int & ifDepth, const int & w
 }
 
 // Проверить является ли на данном уровне вложенности самым глубоким блоком if ... else или if ... end
-int ifDepthest(vector<int> brackets, int index) {
+int ifDepthest(std::vector<int> brackets, int index) {
     int id = 1, wd = 0;
     for (int i = index; i >= 0; i--) {
         switch (brackets[i]) {
@@ -189,43 +178,43 @@ int ifDepthest(vector<int> brackets, int index) {
 }
 
 // Скомлировать очередную строку программы
-void compile(string s, vector<pair<int, vector<int>>> & comp) {
+void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp) {
     static int line, ifDepth, whileDepth;
     const int commandIndex = comp.size();
-    static map<string, int> vars;
-    static vector<int> jumps = {0};
+    static std::map<std::string, int> vars;
+    static std::vector<int> jumps = {0};
     line++;
     jumps.push_back(0);
     delSpaces(s);
     if (s.empty()) {
         return;
     }
-    string command = getWord(s);
+    std::string command = getWord(s);
     delWord(s);
-    const map<string, int> commands = {                                         // Список всех команд
-        pair<string, int>("var", -1),
-        pair<string, int>("#", -1),
-        pair<string, int>("set", 0),
-        pair<string, int>("+", 2),
-        pair<string, int>("-", 4),
-        pair<string, int>("*", 6),
-        pair<string, int>("/", 8),
-        pair<string, int>("%", 10),
-        pair<string, int>("arrset", 12),
-        pair<string, int>("arrget", 16),
-        pair<string, int>("while", 18),
-        pair<string, int>("if", 18),
-        pair<string, int>("end", 26),
-        pair<string, int>("else", 26),
-        pair<string, int>("in", 28),
-        pair<string, int>("out", 30),
-        pair<string, int>("read", 32),
-        pair<string, int>("print", 34)
+    const std::map<std::string, int> commands = {                                         // Список всех команд
+        std::pair<std::string, int>("var", -1),
+        std::pair<std::string, int>("#", -1),
+        std::pair<std::string, int>("set", 0),
+        std::pair<std::string, int>("+", 2),
+        std::pair<std::string, int>("-", 4),
+        std::pair<std::string, int>("*", 6),
+        std::pair<std::string, int>("/", 8),
+        std::pair<std::string, int>("%", 10),
+        std::pair<std::string, int>("arrset", 12),
+        std::pair<std::string, int>("arrget", 16),
+        std::pair<std::string, int>("while", 18),
+        std::pair<std::string, int>("if", 18),
+        std::pair<std::string, int>("end", 26),
+        std::pair<std::string, int>("else", 26),
+        std::pair<std::string, int>("in", 28),
+        std::pair<std::string, int>("out", 30),
+        std::pair<std::string, int>("read", 32),
+        std::pair<std::string, int>("print", 34)
     };
-    const set<string> varcom = {"set", "+", "-", "*", "/", "%", "arrget"};      // Список команд, параметрами которых являются переменная и значение
-    const set<string> comcom = {"arrset"};                                      // Список команд, параметрами которых являются два значения
-    const set<string> block = {"while", "if"};                                  // Список блочных команд
-    const set<string> com = {"in", "out", "read", "print"};                     // Список команд, параметром которых является значение
+    const std::set<std::string> varcom = {"set", "+", "-", "*", "/", "%", "arrget"};      // Список команд, параметрами которых являются переменная и значение
+    const std::set<std::string> comcom = {"arrset"};                                      // Список команд, параметрами которых являются два значения
+    const std::set<std::string> block = {"while", "if"};                                  // Список блочных команд
+    const std::set<std::string> com = {"in", "out", "read", "print"};                     // Список команд, параметром которых является значение
     if(commands.find(command) == commands.end()) {
         error(line, 1, command);
     } else if (command == "#") {
@@ -238,18 +227,18 @@ void compile(string s, vector<pair<int, vector<int>>> & comp) {
         int var = getVar(s, vars, line);
         bool varFlag;
         int arg = getCom(s, vars, line, varFlag);
-        comp.push_back(pair<int, vector<int>>(commands.at(command) + (varFlag ? 0 : 1), vector<int>{var, arg}));
+        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (varFlag ? 0 : 1), std::vector<int>{var, arg}));
     } else if (comcom.find(command) != comcom.end()) {
         bool indexFlag, elementFlag;
         int index = getCom(s, vars, line, indexFlag);
         int element = getCom(s, vars, line, elementFlag);
-        comp.push_back(pair<int, vector<int>>(commands.at(command) + (elementFlag ? 0 : 1) + (indexFlag ? 0 : 2), vector<int>{index, element}));
+        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (elementFlag ? 0 : 1) + (indexFlag ? 0 : 2), std::vector<int>{index, element}));
     } else if (block.find(command) != block.end()) {
         bool paramOneFlag, paramTwoFlag;
         int paramOne = getCom(s, vars, line, paramOneFlag);
         int comparsion = getOp(s, vars, line);
         int paraTwo = getCom(s, vars, line, paramTwoFlag);
-        comp.push_back(pair<int, vector<int>>(commands.at(command) + (paramOneFlag ? 0 : 2) + (paramTwoFlag ? 0 : 1), vector<int>{paramOne, paraTwo, comparsion, -1}));
+        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (paramOneFlag ? 0 : 2) + (paramTwoFlag ? 0 : 1), std::vector<int>{paramOne, paraTwo, comparsion, -1}));
         jumps.resize(commandIndex + 1);
         if (command == "while") {
             jumps[commandIndex] = 1;
@@ -270,25 +259,25 @@ void compile(string s, vector<pair<int, vector<int>>> & comp) {
             comp[index].second[3] = commandIndex + 1;
         }
         if (flag) {
-            comp.push_back(pair<int, vector<int>>(commands.at(command), vector<int>{commandIndex + 1}));
+            comp.push_back(std::pair<int, std::vector<int>>(commands.at(command), std::vector<int>{commandIndex + 1}));
             jumps[commandIndex] = 3;
             ifDepth--;
         } else {
-            comp.push_back(pair<int, vector<int>>(commands.at(command), vector<int>{index}));
+            comp.push_back(std::pair<int, std::vector<int>>(commands.at(command), std::vector<int>{index}));
             jumps[commandIndex] = 4;
             whileDepth--;
         }
     } else if (com.find(command) != com.end()) {
         bool paramFlag;
         int param = getCom(s, vars, line, paramFlag);
-        comp.push_back(pair<int, vector<int>>(commands.at(command) + (paramFlag ? 0 : 1), vector<int>{param}));
+        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (paramFlag ? 0 : 1), std::vector<int>{param}));
     } else if (command == "else") {
         int index;
         if ((index = ifDepthest(jumps, commandIndex)) == -1) {
             error(line, 11);
         }
         comp[index].second[3] = commandIndex + 1;
-        comp.push_back(pair<int, vector<int>>(commands.at(command), vector<int>{-1}));
+        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command), std::vector<int>{-1}));
         jumps[commandIndex] = 5;
     }
     if (!s.empty()) {
@@ -346,9 +335,9 @@ void varOpVar(int & paramOne, int paramTwo, int operation) {
 }
 
 // Выполнить программу
-void run(const vector<pair<int, vector<int>>> & bytecode, int kolvar) {
+void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, int kolvar, std::istream & istr, std::ostream & ostr) {
     int vars[kolvar];
-    unordered_map<int, int> arr;
+    std::unordered_map<int, int> arr;
     bool f;
     char t;
     for (unsigned int i = 0; i < bytecode.size(); i++) {
@@ -415,32 +404,32 @@ void run(const vector<pair<int, vector<int>>> & bytecode, int kolvar) {
             i = bytecode[i].second[0] - 1;
             break;
         case 28:
-            cin >> t;
+            istr >> t;
             vars[bytecode[i].second[0]] = t;
             break;
         case 30:
             t = vars[bytecode[i].second[0]];
-            cout << t;
+            ostr << t;
             break;
         case 31:
             t = bytecode[i].second[0];
-            cout << t;
+            ostr << t;
             break;
         case 32:
-            cin >> vars[bytecode[i].second[0]];
+            istr >> vars[bytecode[i].second[0]];
             break;
         case 34:
-            cout << vars[bytecode[i].second[0]] << endl;
+            ostr << vars[bytecode[i].second[0]] << std::endl;
             break;
         case 35:
-            cout << bytecode[i].second[0] << endl;
+            ostr << bytecode[i].second[0] << std::endl;
             break;
         }
     }
 }
 
 // Провести посткомпиляционный анализ кода
-int analisys(vector<pair<int, vector<int>>> code) {
+int analisys(std::vector<std::pair<int, std::vector<int>>> code) {
     int m = 0;
     for(unsigned int i = 0; i < code.size(); i++) {
         switch (code[i].first) {
@@ -453,7 +442,7 @@ int analisys(vector<pair<int, vector<int>>> code) {
         case 12:
         case 16:
         case 18:
-            m = max(m, max(code[i].second[0], code[i].second[1]));
+            m = std::max(m, std::max(code[i].second[0], code[i].second[1]));
             break;
         case 1:
         case 3:
@@ -469,41 +458,13 @@ int analisys(vector<pair<int, vector<int>>> code) {
         case 32:
         case 34:
         case 35:
-            m = max(m, code[i].second[0]);
+            m = std::max(m, code[i].second[0]);
             break;
         case 14:
         case 20:
-            m = max(m, code[i].second[1]);
+            m = std::max(m, code[i].second[1]);
             break;
         }
     }
     return m;
-}
-
-int main(int argc, char ** argv) {
-    if (argc != 2) {
-        cerr << "Error: argument error" << endl;
-        cerr << "Using: slang <file>" << endl;
-        return 1;
-    }
-    ifstream file;
-    file.open(argv[1]);
-    if (!file.is_open()) {
-        cerr << "Error: can't open file" << endl;
-        return 1;
-    }
-    vector<pair<int, vector<int>>> compiled;
-    while (!file.eof()) {
-        string s;
-        getline(file, s);
-        try {
-            compile(s, compiled);
-        } catch (string message) {
-            cerr << message;
-            return 1;
-        }
-    }
-    int kolvar = analisys(compiled);
-    run(compiled, kolvar);
-    return 0;
 }
