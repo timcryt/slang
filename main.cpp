@@ -1,3 +1,6 @@
+/* main.cpp */
+// Реализация языка в качестве самостоятельной программы
+
 #include <iostream>
 #include <fstream>
 

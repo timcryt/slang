@@ -1,3 +1,6 @@
+/* slang.hpp */
+// Заголовочный файл для подключения к сторонним программам
+
 #include <string>
 
 #ifndef ___SLANG_DEFINED

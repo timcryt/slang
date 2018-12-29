@@ -1,3 +1,6 @@
+/* lib.hpp */
+// Здесь реализована библиотечная функция для встраивания языка в проекты
+
 #include "main.hpp"
 
 std::string runSlang(const std::string & code, const std::string & input) {
