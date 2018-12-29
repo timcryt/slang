@@ -5,17 +5,17 @@
  */
 
 
+//Заголовочные файлы для работы с потоками ввода-вывода
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+//Заголовочные файлы для подключения возможностей STL
 #include <string>
 #include <vector>
 #include <map>
 #include <unordered_map>
 #include <set>
-
-#include <cstdlib>
 
 using namespace std;
 
