@@ -26,6 +26,5 @@ int findBracket(const std::vector<int> & brackets, const int & ifDepth, const in
 int ifDepthest(std::vector<int> brackets, int index);
 void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp);
 bool setFlag(int paramOne, int paramTwo, int compare);
-void varOpVar(int & paramOne, int paramTwo, int operation);
-void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, int kolvar, std::istream & istr, std::ostream & ostr);
-int analisys(std::vector<std::pair<int, std::vector<int>>> code) ;
+int varOpVar(int paramOne, int paramTwo, int operation);
+void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, std::istream & istr, std::ostream & ostr);

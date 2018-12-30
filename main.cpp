@@ -30,7 +30,13 @@ int main(int argc, char ** argv) {
             return 1;
         }
     }
-    int kolvar = analisys(compiled);
-    run(compiled, kolvar, std::cin, std::cout);
+    for (unsigned int i = 0; i < compiled.size(); i++) {
+        std::cout << compiled[i].first << " ";
+        for (unsigned int j = 0; j < compiled[i].second.size(); j++) {
+            std::cout << compiled[i].second[j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    run(compiled, std::cin, std::cout);
     return 0;
 }

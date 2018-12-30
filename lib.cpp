@@ -12,8 +12,7 @@ std::string runSlang(const std::string & code, const std::string & input) {
         getline(c, s);
         compile(s, compiled);
     }
-    int kolvar = analisys(compiled);
-    run(compiled, kolvar, i, o);
+    run(compiled, i, o);
     return o.str();
 }
 
