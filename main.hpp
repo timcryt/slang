@@ -13,18 +13,21 @@
 
 #include "slang.hpp"
 
-void delSpaces(std::string & s);
-std::string getWord(const std::string & s);
-void delWord(std::string & s);
-void error(int line, int code, std::string msg = "");
-bool isNumber(std::string s);
-int getVar(std::string & s, std::map<std::string, int> v, int line);
-int getCom(std::string & s, std::map<std::string, int> v, int line, bool & f);
-int getOp(std::string & s, std::map<std::string, int> v, int line);
-void getInit(std::string & s, std::map<std::string, int> & vars, int line);
-int findBracket(const std::vector<int> & brackets, const int & ifDepth, const int & whileDepth, int index, bool & flag);
-int ifDepthest(std::vector<int> brackets, int index);
-void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp);
-bool setFlag(int paramOne, int paramTwo, int compare);
-int varOpVar(int paramOne, int paramTwo, int operation);
-void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, std::istream & istr, std::ostream & ostr);
+void delSpaces(std::string &);
+std::string getWord(const std::string &);
+void delWord(std::string &);
+void error(int, int, std::string = "");
+bool isNumber(std::string);
+int getVar(std::string &, std::map<std::string, int>, int);
+int getCom(std::string &, std::map<std::string, int>, int, bool &);
+int getOp(std::string &, std::map<std::string, int>, int);
+void getInit(std::string &, std::map<std::string, int> &, int);
+int findBracket(const std::vector<int> &, const int &, const int &, int, bool &);
+int ifDepthest(std::vector<int>, int);
+int addConst(std::map<std::string, int> &, std::vector<std::pair<int, int>> &, int);
+void compile(std::string, std::vector<std::pair<int, std::vector<int>>> &, std::vector<std::pair<int, int>> &);
+bool setFlag(int, int, int);
+int varOpVar(int, int, int);
+void setConsts(int *, const std::vector<std::pair<int, int>> &);
+int analisys(const std::vector<std::pair<int, std::vector<int>>> &);
+void run(const std::vector<std::pair<int, std::vector<int>>> &, std::vector<std::pair<int, int>> &, std::istream &, std::ostream &);

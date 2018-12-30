@@ -20,16 +20,17 @@ int main(int argc, char ** argv) {
         return 1;
     }
     std::vector<std::pair<int, std::vector<int>>> compiled;
+    std::vector<std::pair<int, int>> consts;
     while (!file.eof()) {
         std::string s;
         getline(file, s);
         try {
-            compile(s, compiled);
+            compile(s, compiled, consts);
         } catch (std::string message) {
             std::cerr << message;
             return 1;
         }
     }
-    run(compiled, std::cin, std::cout);
+    run(compiled, consts, std::cin, std::cout);
     return 0;
 }
