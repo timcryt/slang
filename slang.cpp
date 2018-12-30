@@ -8,7 +8,7 @@
 
 
 #include "main.hpp"
-
+#include <iostream>
 
 // Функция delspaces приводит строку в приличный вид - заменяет все табы пробелами, удаляет все двойные пробелы, удаляет все пробелы из начала строки и добавляет один пробел в конец, если его там не было
 void delSpaces(std::string & s) {
@@ -197,26 +197,28 @@ void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp
         std::pair<std::string, int>("var", -1),
         std::pair<std::string, int>("#", -1),
         std::pair<std::string, int>("set", 0),
-        std::pair<std::string, int>("+", 2),
-        std::pair<std::string, int>("-", 4),
-        std::pair<std::string, int>("*", 6),
-        std::pair<std::string, int>("/", 8),
-        std::pair<std::string, int>("%", 10),
-        std::pair<std::string, int>("arrset", 12),
-        std::pair<std::string, int>("arrget", 16),
-        std::pair<std::string, int>("while", 18),
-        std::pair<std::string, int>("if", 18),
-        std::pair<std::string, int>("end", 26),
-        std::pair<std::string, int>("else", 26),
-        std::pair<std::string, int>("in", 28),
-        std::pair<std::string, int>("out", 30),
-        std::pair<std::string, int>("read", 32),
-        std::pair<std::string, int>("print", 34)
+        std::pair<std::string, int>("+", 7),
+        std::pair<std::string, int>("-", 14),
+        std::pair<std::string, int>("*", 22),
+        std::pair<std::string, int>("/", 29),
+        std::pair<std::string, int>("%", 36),
+        std::pair<std::string, int>("arrset", 42),
+        std::pair<std::string, int>("arrget", 46),
+        std::pair<std::string, int>("while", 48),
+        std::pair<std::string, int>("if", 48),
+        std::pair<std::string, int>("end", 52),
+        std::pair<std::string, int>("else", 52),
+        std::pair<std::string, int>("in", 54),
+        std::pair<std::string, int>("out", 55),
+        std::pair<std::string, int>("read", 57),
+        std::pair<std::string, int>("print", 58)
     };
-    const std::set<std::string> varcom = {"set", "+", "-", "*", "/", "%", "arrget"};      // Список команд, параметрами которых являются переменная и значение
+    const std::set<std::string> varcom = {"arrget", "*", "/", "%"};                       // Список команд, параметрами которых являются переменная и значение
     const std::set<std::string> comcom = {"arrset"};                                      // Список команд, параметрами которых являются два значения
     const std::set<std::string> block = {"while", "if"};                                  // Список блочных команд
-    const std::set<std::string> com = {"in", "out", "read", "print"};                     // Список команд, параметром которых является значение
+    const std::set<std::string> ariphm = {"set", "+", "-", "*", "/", "%"};                // Список арифсетических операций
+    const std::set<std::string> com = {"out", "print"};                                   // Список команд, параметром которых является значение
+    const std::set<std::string> var = {"in", "read", "set", "+", "-"};                    // Список команд, параметром которых является переменная
     if(commands.find(command) == commands.end()) {
         error(line, 1, command);
     } else if (command == "#") {
@@ -229,7 +231,13 @@ void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp
         int var = getVar(s, vars, line);
         bool varFlag;
         int arg = getCom(s, vars, line, varFlag);
-        comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (varFlag ? 0 : 1), std::vector<int>{var, arg}));
+        if (!s.empty() && ariphm.find(command) != ariphm.end()) {
+            bool argFlag;
+            int arg2 = getCom(s, vars, line, argFlag);
+            comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + 2 + (varFlag ? 0 : 2) + (argFlag ? 0 : 1), std::vector<int>{var, arg, arg2}));
+        } else {
+            comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + (varFlag ? 0 : 1), std::vector<int>{var, arg}));
+        }
     } else if (comcom.find(command) != comcom.end()) {
         bool indexFlag, elementFlag;
         int index = getCom(s, vars, line, indexFlag);
@@ -281,6 +289,22 @@ void compile(std::string s, std::vector<std::pair<int, std::vector<int>>> & comp
         comp[index].second[3] = commandIndex + 1;
         comp.push_back(std::pair<int, std::vector<int>>(commands.at(command), std::vector<int>{-1}));
         jumps[commandIndex] = 5;
+    } else if (var.find(command) != var.end()) {
+        int arg1 = getVar(s, vars, line);
+        if (!s.empty() && ariphm.find(command) != ariphm.end()) {
+            bool arg2Flag;
+            int arg2 = getCom(s, vars, line, arg2Flag);
+            if (!s.empty()) {
+                bool arg3Flag;
+                int arg3 = getCom(s, vars, line, arg3Flag);
+                comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + 3 + (arg2Flag ? 0 : 2) + (arg3Flag ? 0 : 1), std::vector<int>{arg1, arg2, arg3}));
+            } else {
+                comp.push_back(std::pair<int, std::vector<int>>(commands.at(command) + 1 + (arg2Flag ? 0 : 1), std::vector<int>{arg1, arg2}));
+                
+            }
+        } else {
+            comp.push_back(std::pair<int, std::vector<int>>(commands.at(command), std::vector<int>{arg1}));
+        }
     }
     if (!s.empty()) {
         error(line, 5);
@@ -313,160 +337,124 @@ bool setFlag(int paramOne, int paramTwo, int compare) {
 }
 
 // Выполнить арфиметическую операцию
-void varOpVar(int & paramOne, int paramTwo, int operation) {
+int varOpVar(int paramOne, int paramTwo, int operation) {
     switch(operation) {
     case 0:
-        paramOne = paramTwo;
-        break;
+        return paramTwo;
     case 1:
-        paramOne += paramTwo;
-        break;
+        return paramOne + paramTwo;
     case 2:
-        paramOne -= paramTwo;
-        break;
+        return paramOne - paramTwo;
     case 3:
-        paramOne *= paramTwo;
-        break;
+        return paramOne * paramTwo;
     case 4:
-        paramOne /= paramTwo;
-        break;
+        return paramOne / paramTwo;
     case 5:
-        paramOne %= paramTwo;
-        break;
+        return paramOne % paramTwo;
     }
+    return 0;
 }
 
 // Выполнить программу
-void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, int kolvar, std::istream & istr, std::ostream & ostr) {
-    int vars[kolvar];
-    std::unordered_map<int, int> arr;
+void run(const std::vector<std::pair<int, std::vector<int>>> & bytecode, std::istream & istr, std::ostream & ostr) {
+    std::unordered_map<int, int> arr, vars;
     bool f;
     char t;
     for (unsigned int i = 0; i < bytecode.size(); i++) {
         switch (bytecode[i].first) {                                            // Коды операторов можно посмотреть в функции compile
         case 0:
-        case 2:
-        case 4:
-        case 6:
-        case 8:
-        case 10:
-            varOpVar(vars[bytecode[i].second[0]], vars[bytecode[i].second[1]], bytecode[i].first / 2);
+            vars[bytecode[i].second[0]] = 0;
             break;
-        case 1:
-        case 3:
-        case 5:
         case 7:
-        case 9:
-        case 11:
-            varOpVar(vars[bytecode[i].second[0]], bytecode[i].second[1], bytecode[i].first / 2);
-            break;
-        case 12:
-            arr[vars[bytecode[i].second[0]]] = vars[bytecode[i].second[1]];
-            break;
-        case 13:
-            arr[vars[bytecode[i].second[0]]] = bytecode[i].second[1];
+            vars[bytecode[i].second[0]]++;
             break;
         case 14:
+            vars[bytecode[i].second[0]]--;
+            break;
+        case 1: case 8: case 15: case 22: case 29: case 36:
+            vars[bytecode[i].second[0]] = varOpVar(vars[bytecode[i].second[0]], vars[bytecode[i].second[1]], bytecode[i].first / 7);
+            break;
+        case 2: case 9: case 16: case 23: case 30: case 37:
+            vars[bytecode[i].second[0]] = varOpVar(vars[bytecode[i].second[0]], bytecode[i].second[1], bytecode[i].first / 7);
+            break;
+        case 3: case 10: case 17: case 24: case 31: case 38:
+            vars[bytecode[i].second[0]] = varOpVar(vars[bytecode[i].second[1]], vars[bytecode[i].second[2]], bytecode[i].first / 7);
+            break;
+        case 4: case 11: case 18: case 25: case 32: case 39:
+            vars[bytecode[i].second[0]] = varOpVar(vars[bytecode[i].second[1]], bytecode[i].second[2], bytecode[i].first / 7);
+            break;
+        case 5: case 12: case 19: case 26: case 33: case 40:
+            vars[bytecode[i].second[0]] = varOpVar(bytecode[i].second[1], vars[bytecode[i].second[2]], bytecode[i].first / 7);
+            break;
+        case 6: case 13: case 20: case 27: case 34: case 41:
+            vars[bytecode[i].second[0]] = varOpVar(bytecode[i].second[1], bytecode[i].second[2], bytecode[i].first / 7);
+            break;
+        case 42:
+            arr[vars[bytecode[i].second[0]]] = vars[bytecode[i].second[1]];
+            break;
+        case 43:
+            arr[vars[bytecode[i].second[0]]] = bytecode[i].second[1];
+            break;
+        case 44:
             arr[bytecode[i].second[0]] = vars[bytecode[i].second[1]];
             break;
-        case 15:
+        case 45:
             arr[bytecode[i].second[0]] = bytecode[i].second[1];
             break;
-        case 16:
+        case 46:
             vars[bytecode[i].second[0]] = arr[vars[bytecode[i].second[1]]];
             break;
-        case 17:
+        case 47:
             vars[bytecode[i].second[0]] = arr[bytecode[i].second[1]];
             break;
-        case 18:
+        case 48:
             f = setFlag(vars[bytecode[i].second[0]], vars[bytecode[i].second[1]], bytecode[i].second[2]);
             if (!f) {
                 i = bytecode[i].second[3] - 1;
             }
             break;
-        case 19:
+        case 49:
             f = setFlag(vars[bytecode[i].second[0]], bytecode[i].second[1], bytecode[i].second[2]);
             if (!f) {
                 i = bytecode[i].second[3] - 1;
             }
             break;
-        case 20:
+        case 50:
             f = setFlag(bytecode[i].second[0], vars[bytecode[i].second[1]], bytecode[i].second[2]);
             if (!f) {
                 i = bytecode[i].second[3] - 1;
             }
             break;
-        case 21:
+        case 51:
             f = setFlag(bytecode[i].second[0], bytecode[i].second[1], bytecode[i].second[2]);
             if (!f) {
                 i = bytecode[i].second[3] - 1;
             }
             break;
-        case 26:
+        case 52:
             i = bytecode[i].second[0] - 1;
             break;
-        case 28:
+        case 54:
             istr >> t;
             vars[bytecode[i].second[0]] = t;
             break;
-        case 30:
+        case 55:
             t = vars[bytecode[i].second[0]];
             ostr << t;
             break;
-        case 31:
+        case 56:
             t = bytecode[i].second[0];
             ostr << t;
             break;
-        case 32:
+        case 57:
             istr >> vars[bytecode[i].second[0]];
             break;
-        case 34:
+        case 58:
             ostr << vars[bytecode[i].second[0]] << std::endl;
             break;
-        case 35:
+        case 59:
             ostr << bytecode[i].second[0] << std::endl;
             break;
         }
     }
-}
-
-// Провести посткомпиляционный анализ кода
-int analisys(std::vector<std::pair<int, std::vector<int>>> code) {
-    int m = 0;
-    for(unsigned int i = 0; i < code.size(); i++) {
-        switch (code[i].first) {
-        case 0:
-        case 2:
-        case 4:
-        case 6:
-        case 8:
-        case 10:
-        case 12:
-        case 16:
-        case 18:
-            m = std::max(m, std::max(code[i].second[0], code[i].second[1]));
-            break;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
-        case 9:
-        case 11:
-        case 17:
-        case 19:
-        case 28:
-        case 30:
-        case 31:
-        case 32:
-        case 34:
-        case 35:
-            m = std::max(m, code[i].second[0]);
-            break;
-        case 14:
-        case 20:
-            m = std::max(m, code[i].second[1]);
-            break;
-        }
-    }
-    return m;
 }
