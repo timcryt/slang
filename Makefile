@@ -18,7 +18,7 @@ main.o: main.cpp main.hpp
 lib.o: lib.cpp main.hpp slang.hpp
 	g++ -fPIC -std=c++11 -Wall -fexceptions -O2 -c lib.cpp -o lib.o
 
-install: slang slang.a
+install: slang slang.a slang.so
 	cp slang /usr/bin/
 	cp libslang.a /usr/lib/
 	cp libslang.so /usr/lib/
