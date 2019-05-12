@@ -1,16 +1,19 @@
-all: slang slang.a slang.so
+all: slang libslang.a libslang.so
 
-slang: slang.o main.o
-	g++ -o slang slang.o main.o -s
+slang: compiler.o main.o vm.o
+	g++ -o slang compiler.o main.o vm.o -s
 
-slang.a: slang.o lib.o
-	ar cr libslang.a slang.o lib.o
+libslang.a: compiler.o lib.o vm.o
+	ar cr libslang.a compiler.o lib.o vm.o
 
-slang.so: slang.o lib.o
-	gcc -shared -o libslang.so slang.o lib.o
+libslang.so: compiler.o lib.o vm.o
+	gcc -shared -o libslang.so compiler.o lib.o vm.o
 
-slang.o: slang.cpp main.hpp slang.hpp
-	g++ -fPIC -std=c++11 -Wall -fexceptions -O2 -c slang.cpp -o slang.o
+compiler.o: compiler.cpp main.hpp slang.hpp
+	g++ -fPIC -std=c++11 -Wall -fexceptions -O2 -c compiler.cpp -o compiler.o
+
+vm.o: vm.cpp main.hpp slang.hpp
+	g++ -fPIC -std=c++11 -Wall -fexceptions -O2 -c vm.cpp -o vm.o
 
 main.o: main.cpp main.hpp
 	g++ -std=c++11 -Wall -fexceptions -O2 -c main.cpp -o main.o
